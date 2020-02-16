@@ -15,12 +15,14 @@ helm init --wait --skip-refresh --upgrade --service-account tiller --history-max
 
 # Install Flux
 kubectl create ns fluxcd
+kubectl create secret generic flux-git-deploy --from-file=identity=$(pwd)/ssh/id_rsa
 helm repo add fluxcd https://charts.fluxcd.io
 
 helm upgrade -i flux fluxcd/flux --wait \
 --namespace fluxcd \
---set git.url=https://github.com/richardcase/gitops-app-infra-demo.git \
+--set git.url=git@github.com:richardcase/gitops-app-infra-demo.git \
 --set git.path="deploy/infra\,deploy/apps" \
 --set git.timeout=120s \
 --set git.pollInterval=30s \
---set rbac.create=true
+--set rbac.create=true \
+--set git.secretName=flux-git-deploy
